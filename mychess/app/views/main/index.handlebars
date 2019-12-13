@@ -1,0 +1,38 @@
+<div>
+    <div class="row">
+        <div class="col-9 mt-4">
+            <p class="lead">Seja bem vindo ao aplicativo de partidas de xadrez do Instituto de Computação. Para iniciar
+                uma nova partida, clique na opção <b>Partida</b> do menu superior. Essa aplicação foi desenvolvida para
+                servir de modelo para o Trabalho Prático da disciplina Programação Web 2. Caso encontre algum problema
+                na aplicação, por favor avise o prof. David Fernandes. </p>
+        </div>
+        <div class="col-3">
+            <img src="/img/chess-clipart.png" alt="">
+        </div>
+        <div class="col">
+            <h2>Partidas Iniciadas</h2>
+            {{#each partidas}}
+            {{#if id}}
+            <div class="small-board">
+                <a href="/partida/{{id}}"  style="color:white;">
+                    <div class="small-info">
+                        <span  style="color:white;"><i class="fas fa-chess-king"></i></span>
+                       {{user1.nome}}<br>
+                       {{#if user2}}
+                        <span  style="color:black;"><i class="fas fa-chess-king"></i></span>
+                        {{user2.nome}}
+                        {{else}}
+                         <span  style="color:black;"><i class="fas fa-chess-king"></i></span>
+                       Aguardando Oponente
+                        {{/if}}
+                    </div>
+                </a>
+            </div>
+           {{/if}}
+            {{/each}}
+        </div>
+
+
+
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<div id="ranking">
+
+   <div class="row">
+      <div class="col">
+
+         <table class="table table-hover table-borderless">
+            <thead>
+               <tr class="table-secondary">
+                  <th scope="col">Nome</th>
+                  <th scope="col">Vitórias</th>
+               </tr>
+            </thead>
+           {{#each partidas}}
+           {{#if partida.winner}}
+        <tbody>
+          <tr class="table-active">
+            <td>{{partida.winner}}</td>
+            <td>{{partida.winner}}</td>
+          </tr>
+
+        </tbody>
+        {{/if}}
+        {{/each}}
+         </table>
+
+      </div>
+   </div>
+
+</div>

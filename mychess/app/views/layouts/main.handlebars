@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>My Chess App</title>
+    <meta charset="UTF-8">
+
+    
+    <link rel="stylesheet" href="/css/custom.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
+
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/popper.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+     <script src="/socket.io/socket.io.js"></script>
+     <script src="/js/chessboard-1.0.0.js"></script>
+    <script src="/js/chess.min.js"></script>
+   
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
+        <div id="header" class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
+            <div class="container">
+                <a href="/" class="navbar-brand">
+                    <h3><img class="logo" src="/img/logo.png" style="width:36px" alt="" srcset="">&nbsp; Chess App</h3>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                    aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+
+                        {{#if sessionName.usuario}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/curso/index">Curso</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/create">Nova Partida</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/ranking">Ranking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout [{{sessionName.usuario}}]</a>
+                        </li>
+                        {{else}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/signup">Sign up</a>
+                        </li>
+                        {{/if}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">Sobre</a>
+                        </li>
+                    </ul>
+                    </form>
+                </div>
+            </div>
+    </nav>
+
+    <div class="container">
+        {{{body}}}
+
+    </div>
+
+
+</body>
+
+</html>

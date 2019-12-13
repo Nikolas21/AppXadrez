@@ -1,0 +1,39 @@
+<div id="curso-read">
+
+    <div class="row">
+        <div class="col">
+            <h2>{{curso.nome}}</h2>
+        </div>
+        <div class="col">
+            <div class="float-right mt-3">
+                <a role="button" href="/curso/index" class="btn btn-secondary"><i
+                        class="fas fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
+                <a role="button" href="/curso/update/{{curso.id}}" class="btn btn-secondary"><i
+                        class="fa fa-pencil-alt"></i>&nbsp;&nbsp;Editar</a>
+            </div>
+        </div>
+    </div>
+        <br>
+    <div class="row">
+        <div class="col">
+
+            <table class="table table-hover table-borderless">
+                <tbody>
+                    <tr class="table-dark">
+                        <th scope="row" style="width: 20%">Sigla</th>
+                        <td>{{curso.sigla}}</td>
+                    </tr>
+                    <tr class="table-dark">
+                        <th scope="row">Descrição</th>
+                        <td>{{curso.descricao}}</td>
+                    </tr>
+                    <tr class="table-dark">
+                        <th scope="row">Área</th>
+                        <td>{{curso.area.nome}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

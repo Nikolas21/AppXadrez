@@ -1,0 +1,372 @@
+<div class="row ml-1 mt-4">
+    <div class="col">
+        <div id="{{partida}}" style="width: 500px"></div>
+
+        <div id="status"></div>
+        
+    </div>
+</div>
+
+</form>
+
+<script>
+
+
+    (function () {
+      var game
+      if('{{fen}}' == 'start')
+        game = new Chess();
+        else 
+          game = new Chess('{{fen}}');
+        const socket = io();
+        var color = '{{color}}';
+        var players;
+        var roomId = '{{roomId}}';
+        var idUser = '{{idUser}}'
+        var idOp = '{{idOp}}'
+        var play = true;
+        var partida = '{{partida}}'
+        var fen = '{{fen}}'
+
+        
+        
+            if (roomId !== "" && parseInt(roomId) <= 100) {
+
+                // emit the 'joined' event which we have set up a listener for on the server
+                socket.emit('joined', {idUser,idOp,color,partida,fen,roomId});
+            }
+            var removeGreySquares = function () {
+                $('#board .square-55d63').css('background', '');
+            };
+
+            var greySquare = function (square) {
+                var squareEl = $('#board .square-' + square);
+
+                var background = '#a9a9a9';
+                if (squareEl.hasClass('black-3c85d') === true) {
+                    background = '#696969';
+                }
+
+                squareEl.css('background', background);
+            };
+
+            var onDragStart = function (source, piece) {
+                // do not pick up pieces if the game is over
+                // or if it's not that side's turn
+                if (game.game_over() === true || play ||
+                    (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+                    (game.turn() === 'b' && piece.search(/^w/) !== -1) ||
+                    (game.turn() === 'w' && color === 'black') ||
+                    (game.turn() === 'b' && color === 'white')) {
+                    return false;
+                }
+                // console.log({play, players});
+            };
+
+            var onDrop = function (source, target) {
+                removeGreySquares();
+
+                // see if the move is legal
+                var move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                });
+                if (game.game_over()) {
+                    status.innerHTML = 'GAME OVER';
+                    socket.emit('gameOver', roomId)
+                }
+
+                // illegal move
+                if (move === null) return 'snapback';
+                else
+                    socket.emit('move', { move: move, board: game.fen(), room: roomId });
+
+            };
+
+            var onMouseoverSquare = function (square, piece) {
+                // get list of possible moves for this square
+                var moves = game.moves({
+                    square: square,
+                    verbose: true
+                });
+
+                // exit if there are no moves available for this square
+                if (moves.length === 0) return;
+
+                // highlight the square they moused over
+                greySquare(square);
+
+                // highlight the possible squares for this piece
+                for (var i = 0; i < moves.length; i++) {
+                    greySquare(moves[i].to);
+                }
+            };
+
+            var onMouseoutSquare = function (square, piece) {
+                removeGreySquares();
+            };
+
+            var onSnapEnd = function () {
+                board.position(game.fen());
+            };
+
+
+            // mude o jogo para falso quando ambos os jogadores estiverem
+            // entrou na sala, para que eles pudessem começar a tocar
+            // (quando o jogo é falso, os jogadores podem jogar)
+            socket.on('play', function (msg) {
+                if (msg == roomId) {
+                    play = false;
+                    document.getElementById('status').innerHTML = "Game in progress";
+                }
+            });
+
+            // quando ocorrer uma mudança, verifique se foi feita para a sala do cliente
+            // se sim, faça a mudança no quadro de clientes
+            socket.on('move', function (msg) {
+                if (msg.room == roomId) {
+                   game.move(msg.board)
+                    board.position(msg.board);
+                    game.load(msg.board)
+                    console.log("moved")
+                }
+            });
+
+            socket.on('player', (msg) => {
+
+                var plno = document.getElementById('status').innerHTML
+
+                // we're passing an object -
+                // { playerId, players, color, roomId } as msg
+              
+                color = msg.color;
+                
+
+
+                // show the players number and color in the player div
+                players = msg.players;
+                document.getElementById('status').innerHTML = 'Player ' + color;
+                
+
+                // emit the play event when 2 players have joined
+                if (players == 2) {
+                    play = false;
+                    // relay it to the other player that is in the room
+                    socket.emit('play', msg.roomId);
+                    // change the state from 'join room' to -
+                    document.getElementById('status').innerHTML = "Game in Progress";
+                }
+                // if only one person is in the room
+                else
+                    document.getElementById('status').innerHTML = "Waiting for Second player";
+
+ 
+      var cfg = {
+                orientation: color,
+                draggable: true,
+                position: fen,
+                pieceTheme: '/img/chesspieces/wikipedia/{piece}.png',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onMouseoutSquare: onMouseoutSquare,
+                onMouseoverSquare: onMouseoverSquare,
+                onSnapEnd: onSnapEnd
+            };
+            board = ChessBoard('{{partida}}', cfg);
+        });
+
+           
+    })();
+
+    /*
+    (function () {
+  
+    $("#chat-history").scrollTop($('#messages').height());
+  
+    const socket = io();
+    const partida = 57;
+    const user_w = '13';
+    const user_b = '';
+    const user_current = '13';
+    const my_color = 'white';
+    const my_name = 'Marco Antonio Cavalcante de Sousa';
+    const op_color = 'black';
+    const op_name = 'Jogador a ser definido';
+    const $status = $('#status');
+  
+    socket.on('b_ok', function(msg){
+      if (msg.partida == partida) {
+        location.reload();
+      }
+    });
+  
+    $("#enviar").click(function () {
+      let mensagem = {
+        partida: 57,
+        user: { id: user_current, nome: my_name},
+        color: my_color,
+        mensagem: $("#message-to-send").val(),
+        date: new Date(Date.now()).toLocaleString()
+      };
+      socket.emit('mensagem', mensagem);
+      $("#message-to-send").val("");
+      appendMensagem(mensagem, 'right', my_color);
+      $("#chat-history").scrollTop($('#messages').height());
+    });
+  
+    $("#message-to-send").keypress(function (e) {
+      if(e.which == 13) {
+        $("#enviar").click();
+        return false;
+      }
+    });
+  
+    socket.on('mensagem', function(mensagem){
+      appendMensagem(mensagem, 'left', op_color);
+      $("#chat-history").scrollTop($('#messages').height());
+    });
+  
+    function appendMensagem(mensagem, align, color) {
+  
+      if (align == 'left') {
+        var messageData =
+          `<div class="message-data">
+            <span class="message-piece"><i class="fas fa-chess-king"></i></span>
+            <span class="message-data-name" >${mensagem.user.nome}</span>
+            <span class="message-data-time" >${mensagem.date}</span>
+          </div>`;
+      } else {
+        var messageData =
+          `<div class="message-data">
+            <span class="message-data-time" >${mensagem.date}</span>
+            <span class="message-data-name" >${mensagem.user.nome}</span>
+            <span class="message-piece"><i class="fas fa-chess-king"></i></span>
+          </div>`;
+      }
+  
+      var newMessage =
+       `<li class="${align}-message ${color}-message clearfix">
+          ${messageData}
+          <div class="message">
+            ${mensagem.mensagem}
+          </div>
+        </li>`;
+  
+      $("#messages").append(newMessage);
+    }
+  
+    const game = new Chess();
+    game.load('start');
+  
+    const board = Chessboard('board', {
+      draggable: true,
+      orientation: 'white',
+      position: 'start',
+      moveSpeed: 'slow',
+      pieceTheme: '/img/chesspieces/wikipedia/{piece}.png',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd
+    });
+  
+    function onDragStart (source, piece, position, orientation) {
+      // do not pick up pieces if the game is over
+      if (game.game_over()) return false;
+  
+      // only pick up pieces for its own color
+      if ((my_color === 'white' && piece.search(/^b/) !== -1) ||
+          (my_color === 'black' && piece.search(/^w/) !== -1)) {
+        return false
+      }
+  
+      // only pick up pieces for the side to move
+      if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        return false
+      }
+    }
+  
+    function onDrop (source, target) {
+      // see if the move is legal
+      var move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q' // NOTE: always promote to a queen for example simplicity
+      });
+  
+      // illegal move
+      if (move === null) return 'snapback'
+  
+      // Enviar posição para adversário
+      socket.emit('move', {
+        partida: 57,
+        source: source,
+        target: target,
+        position: game.fen()
+      });
+  
+      updateStatus();
+    }
+  
+    // update the board position after the piece snap
+    // for castling, en passant, pawn promotion
+    function onSnapEnd () {
+      board.position(game.fen())
+    }
+  
+    function updateStatus () {
+      var status = ''
+  
+      var moveColor = '<b>branco</b>'
+      if (game.turn() === 'b') {
+        moveColor = '<b>preto</b>'
+      }
+  
+      // checkmate?
+      if (game.in_checkmate()) {
+        status = 'É xeque-mate! Vitória do jogador ' + moveColor + '!'
+      }
+  
+      // empate? (draw)
+      else if (game.in_draw()) {
+        status = 'O jogo empatou!'
+      }
+  
+      // game still on
+      else {
+        status = 'A vez é do jogador ' + moveColor + '.'
+  
+        // check?
+        if (game.in_check()) {
+          status += ', o jogador ' + moveColor + ' está em xeque.'
+        }
+      }
+  
+      $status.html(status)
+    }
+  
+    socket.on('move', function(move){
+  
+      if (move.partida == 57) {
+        board.move(move.source + '-' + move.target);
+  
+        game.move({
+          from: move.source,
+          to: move.target,
+          promotion: 'q' // NOTE: always promote to a queen for example simplicity
+        });
+  
+        updateStatus();
+      }
+  
+    });
+  
+    updateStatus();
+  
+  })();
+  
+  
+    */
+
+</script>
